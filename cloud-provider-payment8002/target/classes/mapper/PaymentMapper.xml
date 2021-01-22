@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.atguigu.springcloud.dao.PaymentDao">
+
+    <resultMap id="BaseResultMap" type="com.atguigu.springcloud.entities.Payment">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <id column="serial" property="serial" jdbcType="VARCHAR"/>
+    </resultMap>
+    
+    <select id="getPaymentById" parameterType="java.lang.Long" resultMap="BaseResultMap">
+
+        select id,serial from payment where id = #{id}
+
+    </select>
+
+    <!--在yml下面配置了type-aliases-package: com.atguigu.springcloud.entities # 所有Entity别名类所在包
+    所以不用写全类目
+    -->
+    <insert id="create" parameterType="Payment" useGeneratedKeys="true" keyProperty="id">
+
+        insert into  payment(serial) values (#{serial})
+
+    </insert>
+
+</mapper>

@@ -1,0 +1,46 @@
+server:
+  port: 9527
+
+spring:
+  application:
+    name: cloud-gateway
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true  #开启从注册中心动态创建路由的功能，利用微服务名进行路由
+      routes:
+        - id: payment_routh #路由的ID，没有固定规则但要求唯一，建议配合服务名
+#          uri: http://localhost:8001 #匹配后提供服务的路由地址
+          uri: lb://cloud-payment-service
+          predicates:
+           - Path=/payment/get/**   #断言,路径相匹配的进行路由
+
+        - id: payment_routh2
+#          uri: http://localhost:8001 #匹配后提供服务的路由地址
+          uri: lb://cloud-payment-service
+          #filters:
+          # - AddRequestParameter=X-Request-Id,1024  # 过滤工厂会在匹配的请求上加一个请求头X-Request-Id=1024
+          predicates:
+            - Path=/payment/lb/**   #断言,路径相匹配的进行路由
+            - After=2021-01-13T22:26:51.152+08:00[Asia/Shanghai] #地址要匹配并且时间在这个之后才可以运行
+            # after before between 都一样类似
+            # Cookie  k，v 键值对 curl 命令行模拟发送get请求   curl http://localhost:9527/payment/lb --cookie "username=GJD-Mac"
+            #- Cookie=username,guojiandong
+            #- Header=X-Request-Id,\d+       # 请求头要有X-Request属性，并且值为整数的正则表达式 \d+   -H "X-Request-Id:123"
+            #- Query=username,\d+  #curl http://localhost:9527/payment/lb?username=123
+            #- Host=**.atguigu.com    curl http://localhost:9527/payment -H "Host:www.atguigu.com"  或者 "Host:news.atguigu.com"
+            #- Method=GET   get请求才可以匹配成功进行访问
+        - id: payment_routh3
+          uri: http://news.baidu.com
+          predicates:
+            - Path=/mil/**   #断言,路径相匹配的进行路由
+
+eureka:
+  instance:
+    hostname: cloud-gateway-service   # gateway服务端的实例名字  其实就是127.0.0.1  也就是localhost  在下面可以引用${eureka.instance.hostname}:9527
+  client:
+    service-url:    #提供者注册进eureka
+      register-with-eureka: true
+      fetch-registry: true
+      defaultZone: http://eureka7001.com:7001/eureka,http://eureka7002.com:7002/eureka
